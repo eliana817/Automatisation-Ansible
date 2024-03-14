@@ -5,7 +5,7 @@
 [windows:vars]
 
 ansible_user=ansible
-ansible_password=azerty123!
+ansible_password=password
 ansible_ssh_port=5986
 ansible_connection=winrm
 ansible_winrm_transport=basic
@@ -21,8 +21,8 @@ centreon_alias=host1
 [linux:vars]
 
 ansible_user=ansible
-ansible_password=azerty123MAr;78
-ansible_become_password=azerty123MAr;78
+ansible_password=password
+ansible_become_password=password
 ansible_host=192.168.1.2
 centreon_name=host2
 centreon_alias=host2
@@ -35,4 +35,4 @@ centreon_alias=host2
 
 centreon_url="http://192.168.2.2/centreon"
 centreon_api_user=admin
-centreon_api_pass=Azertyqw!59B
+centreon_api_pass=password
