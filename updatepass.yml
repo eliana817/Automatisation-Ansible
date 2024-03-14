@@ -1,0 +1,72 @@
+- name: password manager
+  hosts: "{{ target_host }}"
+
+  vars_prompt:
+
+    - name: target_host
+      prompt: "Enter target host name"
+      private: no
+
+    - name: username
+      prompt: "Enter username"
+      private: no
+
+  tasks:
+
+    - name: get csv file
+      community.general.read_csv:
+        path: "/tmp/users.csv"
+      register: users
+      delegate_to: localhost
+
+    - name: check if user exists
+      debug:
+        msg: "User exists, proceeding to change password..."
+      loop: "{{ users.list }}"
+      loop_control:
+        loop_var: user
+      delegate_to: localhost
+      when: user.username == username and user.host == target_host
+
+    - name: generate random password
+      set_fact:
+        #password: "{{ lookup('community.general.random_string', length=10, min_lower=1, min_upper=1, min_numeric=1, min_special=1, override_special='-_=+!#$') }}"
+        password: "{{ lookup('community.general.random_string', length=10, min_lower=1, min_upper=1, min_numeric=1, special=false) }}"
+      delegate_to: localhost
+    - debug:
+        msg: "The new password is: {{ password }}"
+      delegate_to: localhost
+
+    - name: change password in csv file
+      ansible.builtin.replace:
+        path: "/tmp/users.csv"
+        regexp: "{{ user.password }}"
+        replace: "{{ password }}"
+      loop: "{{ users.list }}"
+      loop_control:
+        loop_var: user
+      delegate_to: localhost
+      when: user.username == username and user.host == target_host
+
+#####################################################################
+
+    - name: determine existing users
+      getent:
+        database: passwd
+      when: ansible_os_family == "RedHat"
+
+    - name: change {{ username }} password for linux
+      become: true
+      ansible.builtin.user:
+        name: "{{ username }}"
+        state: present
+        password: "{{ password | password_hash('sha512') }}"
+        update_password: always
+      when: ansible_os_family == "RedHat" and username in ansible_facts.getent_passwd
+
+    - name: change {{ username }} password for windows
+      ansible.windows.win_user:
+        name: "{{ username }}"
+        state: present
+        password: "{{ password }}"
+      when: ansible_os_family == "Windows"
