@@ -1,0 +1,33 @@
+- name: SNMP win
+  hosts: windows
+  tasks:
+    - name: Configure SNMP
+      win_snmp:
+        community_strings:
+        - public
+        permitted_managers:
+        - 192.168.2.7
+        action: set
+    - name: restart SNMP service
+      win_service:
+        name: SNMP
+        state: restarted
+  tags:
+    - win
+
+- name: SNMP Linux
+  hosts: linux
+  become: yes
+  tasks:
+    - name: Configure SNMP
+      lineinfile:
+        path: /etc/snmp/snmpd.conf
+        regexp: 'com2sec notConfigUser default      public'
+        line: 'com2sec notConfigUser default      <COMMUNITY>'
+        backrefs: true
+    - name: restart SNMP Service
+      service:
+        name: snmpd
+        state: restarted
+  tags:
+    - linux
