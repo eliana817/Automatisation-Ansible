@@ -1,0 +1,22 @@
+- name: Delete SNMP windows
+  hosts: windows
+  tasks:
+    - name: Delete SNMP
+      win_feature:
+        name: SNMP-Service
+        state: absent
+    - name: Reboot Windows
+      win_reboot:
+  tags:
+    - win
+
+- name: Delete SNMP Linux
+  hosts: linux
+  become: yes
+  tasks:
+    - name: Delete SNMP win
+      package:
+        name: net-snmp
+        state: absent
+  tags:
+    - linux
