@@ -1,0 +1,30 @@
+- name: SNMP win
+  hosts: windows
+  tasks:
+    - name: Install SNMP-Server
+      win_feature:
+        name: SNMP-Service
+        state: present
+    - name: restart SNMP service
+      win_service:
+        name: SNMP
+        state: restarted
+  tags:
+    - win
+
+- name: SNMP Linux
+  hosts: linux
+  become: yes
+  tasks:
+    - name: Install SNMP-Server
+      package:
+        name: 
+          - net-snmp
+          - net-snmp-utils
+        state: present
+    - name: restart SNMP Service
+      service:
+        name: snmpd
+        state: restarted
+  tags:
+    - linux
