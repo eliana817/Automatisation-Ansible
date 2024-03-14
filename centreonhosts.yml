@@ -6,7 +6,7 @@
   vars:
     centreon_url: "http://192.168.2.2/centreon"
     centreon_api_user: "admin"
-    centreon_api_pass: "Azertyqw!59B"
+    centreon_api_pass: "password"
 
   tasks:
     - name: Add Linux Host to Centreon
