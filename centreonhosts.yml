@@ -1,0 +1,74 @@
+- hosts: windows,linux
+  connection: local
+  roles:
+    - role: ansible-modules-centreon
+
+  vars:
+    centreon_url: "http://192.168.2.2/centreon"
+    centreon_api_user: "admin"
+    centreon_api_pass: "Azertyqw!59B"
+
+  tasks:
+    - name: Add Linux Host to Centreon
+      block:
+        - name: Add host
+          centreon_host:
+            url: "{{ centreon_url }}"
+            username: "{{ centreon_api_user }}"
+            password: "{{ centreon_api_pass }}"
+            name: "{{ centreon_name }}"
+            alias: "{{ centreon_alias }}"
+            ipaddr: "{{ ansible_host }}"
+            hosttemplates:
+              - name: OS-Linux-SNMP-custom
+            status: enabled
+            state: present
+          delegate_to: central
+      when: ansible_os_family == "RedHat"
+
+    - name: Add Windows to Centreon
+      block:
+        - name: Add host
+          centreon_host:
+            url: "{{ centreon_url }}"
+            username: "{{ centreon_api_user }}"
+            password: "{{ centreon_api_pass }}"
+            name: "{{ centreon_name }}"
+            alias: "{{ centreon_alias }}"
+            ipaddr: "{{ ansible_host }}"
+            hosttemplates:
+              - name: OS-Windows-SNMP-custom
+            status: enabled
+            state: present
+          delegate_to: central
+      when: ansible_os_family == "Windows"
+
+  tags:
+    - add
+
+
+
+- hosts: windows,linux
+  connection: local
+  roles:
+    - role: ansible-modules-centreon
+
+  vars:
+    centreon_url: "http://192.168.2.2/centreon"
+    centreon_api_user: "admin"
+    centreon_api_pass: "Azertyqw!59B"
+
+  tasks:
+    - name: Delete Host from Centreon
+      centreon_host:
+        url: "{{ centreon_url }}"
+        username: "{{ centreon_api_user }}"
+        password: "{{ centreon_api_pass }}"
+        name: "{{ centreon_name }}"
+        alias: "{{ centreon_alias }}"
+        ipaddr: "{{ ansible_host }}"
+        state: absent
+        applycfg: False
+      delegate_to: central
+  tags:
+    - delete
